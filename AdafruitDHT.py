@@ -28,7 +28,7 @@ class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
 
         print self.request.getpeername()
 
-        if data['type'] == 'D_COMMAND' && data['command'] == 'DELETE':
+        if data['type'] == 'D_COMMAND':
             if data['command'] == 'DELETE':
                 delete_command()
                 response = create_status('OK', '')
