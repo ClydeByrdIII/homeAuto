@@ -3,6 +3,10 @@ import threading
 import SocketServer
 from server import *
 
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
 
 class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
 
@@ -36,8 +40,10 @@ class ThreadedDeviceServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 if __name__ == '__main__':
     import socket
     import threading
-
-    address = ('localhost', 8080) # let the kernel give us a port
+    ip = get_ip_address()
+    port = 8080
+    print 'IPADDR:' + ip + ' on Port:' + str(port) 
+    address = (ip, port) # let the kernel give us a port
     server = ThreadedDeviceServer(address, ThreadedDeviceRequestHandler)
     server.allow_reuse_address = True
 
