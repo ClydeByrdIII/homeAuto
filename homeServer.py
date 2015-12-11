@@ -25,7 +25,7 @@ class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
         elif data['type'] == 'D_DELETE':
           response = delete_handle(data)
         elif data['type'] == 'D_COMMAND':
-          response = command_handle(data, 'DELETE')
+          response = command_handle(data)
         else:
           response = create_status('FAIL', 'type "' + data['type'] + '" was not found')
 

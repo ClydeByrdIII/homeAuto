@@ -14,6 +14,9 @@ pin = "P8_11"
 ip = '35.2.116.95'
 name = 'temp_BBB'
 
+def create_status(status, msg):
+    return {'type': 'D_STATUS', 'status': status, 'msg': msg}
+    
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
