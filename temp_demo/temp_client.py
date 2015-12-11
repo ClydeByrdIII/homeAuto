@@ -85,6 +85,6 @@ if __name__ == '__main__':
             msg = 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity)
             print msg
             if temperature > 70:
-            notify_client(ip, did, name, msg)
+                notify_client(ip, did, name, msg)
         time.sleep(10)
 

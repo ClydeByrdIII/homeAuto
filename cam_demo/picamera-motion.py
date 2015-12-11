@@ -1,15 +1,15 @@
 #!/usr/bin/python
 
-verbose = True
-if verbose:
-    print "Loading python libraries ....."
-else:
-    print "verbose output has been disabled verbose=False"
-
-import picamera
-import picamera.array
-import datetime
+import json
 import time
+import socket
+import datetime
+import picamera
+import threading
+import subprocess
+import SocketServer
+import picamera.array
+from client import *
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -19,16 +19,8 @@ from fractions import Fraction
 SECONDS2MICRO = 1000000  # Constant for converting Shutter Speed in Seconds to Microseconds
 
 # User Customizable Settings
-imageDir = "images"
-imagePath = "/home/pi/pimotion/" + imageDir
-imageNamePrefix = 'capture-'  # Prefix for all image file names. Eg front-
 imageWidth = 1980
 imageHeight = 1080
-imageVFlip = False   # Flip image Vertically
-imageHFlip = False   # Flip image Horizontally
-imagePreview = False
-
-numberSequence = False
 
 threshold = 10  # How Much pixel changes
 sensitivity = 100  # How many pixels change
@@ -39,6 +31,44 @@ nightShutSpeed = 6 * SECONDS2MICRO  # seconds times conversion to microseconds c
 # Advanced Settings not normally changed 
 testWidth = 100
 testHeight = 75
+
+ip = '35.2.116.95'
+name = 'motion_pi'
+my_ip = ''
+vidproc = None
+gateproc = None
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+
+        dev_data = self.request.recv(1024)
+        data = json.loads(dev_data);
+
+        print self.request.getpeername()
+
+        if data['type'] == 'D_COMMAND':
+            if data['command'] == 'DELETE':
+                delete_command()
+                response = create_status('OK', '')
+            else:
+                response = create_status('FAIL', 'command "' + data['command'] + '" was not found')
+        else:
+            response = create_status('FAIL', 'type "' + data['type'] + '" was not found')
+
+        message = json.dumps(response)
+
+        print '%s : %s' % ('Response is ', message)
+        self.request.send(message)
+        return
+
+class ThreadedDeviceServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    pass
 
 def takeMotionImage(width, height, daymode):
     with picamera.PiCamera() as camera:
@@ -87,13 +117,42 @@ def scanMotion(width, height, daymode):
 def motionDetection():
     print "Scanning for Motion threshold=%i sensitivity=%i ......"  % (threshold, sensitivity)
     isDay = True
-    currentCount= 1000
+
     while True:
+        # get did
+        did_rec = False
+        did = ''
+        # get did
+        while did_rec == False:
+            did = register_client(ip, name)
+            if did != '':
+                did_rec = True
+                print did
+        # do motion detection
         if scanMotion(testWidth, testHeight, isDay):
             print 'Motion Detected'
-            raw_input()
+            notify_client(ip, did, name, 'Motion Detected! Please look at http://' + my_ip +'/demos/webrtc.html')
+            vidproc = subprocess.Popen('./makestream.sh', shell=True)
+            gateproc = subprocess.Popen('./makegateway.sh', shell=True)
+            vidproc.wait()
+            gateproc.wait()
+            vidproc = None
+            gateproc = None
              
 if __name__ == '__main__':
+
+    my_ip = get_ip_address()
+    port = 5050
+    print 'IPADDR:' + my_ip + ' on Port:' + str(port)
+    address = (my_ip, port) # let the kernel give us a port
+    server = ThreadedDeviceServer(address, ThreadedDeviceRequestHandler)
+    server.allow_reuse_address = True
+
+    t = threading.Thread(target=server.serve_forever)
+    t.setDaemon(True) # don't hang on exit
+    t.start()
+    print 'Server loop running in thread:', t.getName()
+
     try:
         motionDetection()
     finally:
