@@ -1,7 +1,4 @@
 #!/usr/bin/python
-# Copyright (c) 2014 Adafruit Industries
-
-import sys
 import Adafruit_DHT
 
 
@@ -11,7 +8,7 @@ sensor = Adafruit_DHT.DHT22
 pin = "P8_11"
 humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
-convert the temperature to Fahrenheit.
+#convert the temperature to Fahrenheit.
 temperature = temperature * 9/5.0 + 32
 
 # Note that sometimes you won't get a reading and
