@@ -12,17 +12,16 @@ pin = "P8_11"
 ip = '35.2.116.95'
 name = 'temp_BBB'
 
-While True:
+while True:
 
 	did_rec = False
 	did = ''
 	# get did
 	while did_rec == False:
-
 		did = register_client(ip, name)
 		if did != '':
-	    	did_rec = True
-	    	print did
+	    		did_rec = True
+	    		print did
 	# Try to grab a sensor reading.  Use the read_retry method which will retry up
 	# to 15 times to get a sensor reading (waiting 2 seconds between each retry).
 	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
@@ -39,5 +38,5 @@ While True:
 		print msg
 		if temperature > 70:
 			notify_client(ip, did, name, msg)
-	time.sleep(5)
+	time.sleep(10)
 
