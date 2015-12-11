@@ -15,7 +15,7 @@ class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
         
         dev_data = self.request.recv(1024)
         data = json.loads(dev_data);
-
+        
         print self.request.getpeername()
 
         if data['type'] == 'D_REG':

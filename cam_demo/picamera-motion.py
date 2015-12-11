@@ -35,8 +35,9 @@ testHeight = 75
 ip = '35.2.116.95'
 name = 'motion_pi'
 my_ip = ''
-vidproc = None
-gateproc = None
+
+def create_status(status, msg):
+    return {'type': 'D_STATUS', 'status': status, 'msg': msg}
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -57,10 +58,8 @@ class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
                 delete_command()
                 response = create_status('OK', '')
             elif data['command'] == 'KILL':
-                if vidproc != None:
-                    vidproc.kill()
-                if gateproc != None:
-                    gateproc.kill()
+                call (["pkill raspivid"], shell=True)
+                call (["pkill janus"], shell=True)
                 response = create_status('OK', '')
             else:
                 response = create_status('FAIL', 'command "' + data['command'] + '" was not found')
