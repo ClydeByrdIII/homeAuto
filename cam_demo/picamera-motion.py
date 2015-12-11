@@ -13,6 +13,7 @@ from client import *
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
+from subprocess import call
 from fractions import Fraction
 
 #Constants
