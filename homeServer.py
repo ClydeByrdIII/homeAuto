@@ -1,4 +1,5 @@
 import json
+import socket
 import threading
 import SocketServer
 from server import *
@@ -38,8 +39,7 @@ class ThreadedDeviceServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 if __name__ == '__main__':
-    import socket
-    import threading
+
     ip = get_ip_address()
     port = 8080
     print 'IPADDR:' + ip + ' on Port:' + str(port) 

@@ -6,6 +6,10 @@ import os
 
 server_ip_port = 8080;
 did_filename = 'did.data'
+
+def create_status(status, msg):
+    return {'type': 'D_STATUS', 'status': status, 'msg': msg}
+
 # return did
 def register_client(ip, name):
     did = ''
