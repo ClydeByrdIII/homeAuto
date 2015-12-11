@@ -56,6 +56,12 @@ class ThreadedDeviceRequestHandler(SocketServer.BaseRequestHandler):
             if data['command'] == 'DELETE':
                 delete_command()
                 response = create_status('OK', '')
+            elif data['command'] == 'KILL':
+                if vidproc != None:
+                    vidproc.kill()
+                if gateproc != None:
+                    gateproc.kill()
+                response = create_status('OK', '')
             else:
                 response = create_status('FAIL', 'command "' + data['command'] + '" was not found')
         else:
@@ -138,6 +144,7 @@ def motionDetection():
             gateproc.wait()
             vidproc = None
             gateproc = None
+            time.sleep(10)
              
 if __name__ == '__main__':
 
